@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Private Case File</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: rgba(255,255,255,0.08);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #f472b6;
+      --accent-2: #60a5fa;
+      --good: #34d399;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 55%, #020617 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      min-height: 640px;
+      padding: 22px;
+      position: relative;
+    }
+
+    .screen.active { display: block; }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(96,165,250,0.14);
+      border: 1px solid rgba(96,165,250,0.28);
+      color: #bfdbfe;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .btn, input {
+      width: 100%;
+      border: none;
+      outline: none;
+      border-radius: 16px;
+      font-size: 16px;
+    }
+
+    .btn {
+      padding: 14px 16px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 20px rgba(96,165,250,0.18);
+      margin-top: 10px;
+    }
+
+    .ghost {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    input {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      margin: 12px 0 4px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #cbd5e1;
+      opacity: 0.85;
+      margin-top: 8px;
+    }
+
+    .board {
+      margin-top: 18px;
+      position: relative;
+      height: 380px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+
+    .scorebar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+
+    .token {
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      user-select: none;
+      animation: pop 0.18s ease-out;
+      background: rgba(244,114,182,0.16);
+      border: 1px solid rgba(244,114,182,0.26);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+    }
+
+    .token.decoy {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .big {
+      font-size: 42px;
+      margin: 18px 0 12px;
+    }
+
+    .reveal {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(52,211,153,0.08);
+      border: 1px solid rgba(52,211,153,0.18);
+      color: #dcfce7;
+      line-height: 1.6;
+    }
+
+    .tiny {
+      margin-top: 18px;
+      font-size: 12px;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    .typing-cursor::after {
+      content: "|";
+      display: inline-block;
+      margin-left: 2px;
+      color: #bfdbfe;
+      animation: blink 0.9s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="screen active" id="screen-1">
+      <div class="tag">Tài liệu mật</div>
+      <h1>hello, officer</h1>
+      <p>I have something for u, Nghị à!</p>
+      <p>Cần xác minh tý đã. Are you a robot?</p>
+      <button class="btn" onclick="goTo(2)">Nah, My name is Nguyễn Trung Nghị</button>
+      <button class="btn ghost" onclick="goTo(99)">Yes, im robot</button>
+    </section>
+
+    <section class="screen" id="screen-2">
+      <div class="tag">LEVEL 1</div>
+      <h2>Xác thực danh tính</h2>
+      <p>Gợi ý: một nơi không quá đặc biệt, nhưng lại là nơi bắt đầu</p>
+      <input id="answer" placeholder="Nhập đáp án..." autocomplete="off" />
+      <button class="btn" onclick="checkAnswer()">Xác nhận</button>
+      <div class="hint" id="answer-hint">Viết không dấu cũng được, em Vy hông làm khó Nghị :3</div>
+    </section>
+
+    <section class="screen" id="screen-3">
+      <div class="tag">LEVEL 2</div>
+      <h2>Thu thập dấu hiệu</h2>
+      <p> chọn những thứ khiến anh “thật lòng”  <strong>🍷</strong>. còn lại… tránh xa nhá <strong>🪳</strong>.</p>
+      <div class="scorebar">
+        <span id="score">Đã thu thập: 0/5</span>
+        <span id="status">còn 3 lần sai</span>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <section class="screen" id="screen-4">
+      <div class="tag">CASE CLOSED</div>
+      <div class="center">
+        <div class="big">💌</div>
+        <h2> Nghị vừa uống hơi nhiều đấy nhé :3</h2>
+      </div>
+      <p id="ql-line" style="opacity:0.72; font-size:13px; margin-top:8px; letter-spacing:0.04em; color:#bfdbfe;">đã phát hiện bước nhảy lượng tử...</p>
+      <div class="reveal" id="reveal-message">
+        i thought about this for a while.<br/>
+        i still don't trust feelings.<br/>
+        i still don't like losing control.<br/>
+        but <br/>
+        i didn't send this to anyone else.<br/><br/>
+        <strong>ONLY YOU</strong> <br/><br/>
+       so maybe, that means something.<br/><br/>
+      </div>
+      <button class="btn" onclick="restartGame()">mwah</button>
+      <div class="tiny">made quietly, only for one person</div>
+    </section>
+
+    <section class="screen" id="screen-99">
+      <div class="tag">TRUY CẬP SAI ĐỐI TƯỢNG</div>
+      <h2>Ừm... không sao cả</h2>
+      <p>Vậy coi như anh chưa thấy gì nha.</p>
+      <button class="btn" onclick="goTo(1)">Quay lại</button>
+    </section>
+  </div>
+
+  <script>
+    let currentScreen = 1;
+    let score = 0;
+    let lives = 3;
+    let spawnInterval = null;
+
+    function goTo(n) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(`screen-${n}`).classList.add('active');
+      currentScreen = n;
+      if (n === 3) startBoard();
+    }
+
+    function normalizeText(text) {
+      return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
+
+    function checkAnswer() {
+      const value = normalizeText(document.getElementById('answer').value);
+      const ok = ['thang sau', 'thangsau', 'thang6', 'thang 6', 'sau'].includes(value);
+      const hint = document.getElementById('answer-hint');
+      if (ok) {
+        hint.textContent = 'Trip thẳng vào tim em Vy';
+        hint.style.color = '#86efac';
+        setTimeout(() => goTo(3), 450);
+      } else {
+        hint.textContent = 'Hmm, đó là nơi em sẽ đến mỗi khi nhận lương :>';
+        hint.style.color = '#fca5a5';
+      }
+    }
+
+    function startBoard() {
+      score = 0;
+      lives = 3;
+      updateStats();
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      if (spawnInterval) clearInterval(spawnInterval);
+      spawnInterval = setInterval(spawnToken, 700);
+    }
+
+    function updateStats() {
+      document.getElementById('score').textContent = `Đã tìm: ${score}/5`;
+      document.getElementById('status').textContent = `Còn ${lives} mạng`;
+    }
+
+    function spawnToken() {
+      const board = document.getElementById('board');
+      const token = document.createElement('div');
+      const isHeart = Math.random() > 0.35;
+      token.className = 'token' + (isHeart ? '' : ' decoy');
+      token.textContent = isHeart ? '🍷' : '🪳';
+
+      const maxX = board.clientWidth - 54;
+      const maxY = board.clientHeight - 54;
+      token.style.left = Math.random() * maxX + 'px';
+      token.style.top = Math.random() * maxY + 'px';
+
+      token.onclick = () => {
+        if (isHeart) {
+          score += 1;
+          if (navigator.vibrate) navigator.vibrate(20);
+        } else {
+          lives -= 1;
+          if (navigator.vibrate) navigator.vibrate([30, 30, 30]);
+        }
+        token.remove();
+        updateStats();
+        if (score >= 5) finishGame(true);
+        if (lives <= 0) finishGame(false);
+      };
+
+      board.appendChild(token);
+      setTimeout(() => token.remove(), 1400);
+    }
+
+    function finishGame(win) {
+      clearInterval(spawnInterval);
+      spawnInterval = null;
+      if (win) {
+        goTo(4);
+      } else {
+        const board = document.getElementById('board');
+        board.innerHTML = '';
+        const msg = document.createElement('div');
+        msg.style.position = 'absolute';
+        msg.style.inset = '0';
+        msg.style.display = 'flex';
+        msg.style.flexDirection = 'column';
+        msg.style.alignItems = 'center';
+        msg.style.justifyContent = 'center';
+        msg.style.textAlign = 'center';
+        msg.style.padding = '24px';
+        msg.innerHTML = '<div style="font-size:38px;margin-bottom:8px">🙈</div><div style="font-weight:700;margin-bottom:8px">Con gà Nghị này</div><div style="color:#cbd5e1">Bắt chi lắm gián thế hả, tính hù chết em à ???</div><button class="btn" style="margin-top:16px;max-width:220px" onclick="startBoard()">Điều tra lại</button>';
+        board.appendChild(msg);
+      }
+    }
+
+    function restartGame() {
+      document.getElementById('answer').value = '';
+      document.getElementById('answer-hint').textContent = 'Viết không dấu cũng được, em Vy đâu bao giờ làm khó anh';
+      document.getElementById('answer-hint').style.color = '#cbd5e1';
+      goTo(1);
+    }
+      // TYPEWRITER EFFECT
+    function typeWriter(element, speed = 25) {
+      const html = element.innerHTML;
+      element.innerHTML = "";
+      let i = 0;
+
+      function typing() {
+        if (i < html.length) {
+          if (html.charAt(i) === "<") {
+            const end = html.indexOf(">", i);
+            element.innerHTML += html.substring(i, end + 1);
+            i = end + 1;
+          } else {
+            element.innerHTML += html.charAt(i);
+            i++;
+          }
+          setTimeout(typing, speed);
+        }
+      }
+      typing();
+    }
+
+    // trigger typewriter when entering screen 4
+    const originalGoTo = goTo;
+    goTo = function(n) {
+      originalGoTo(n);
+      if (n === 4) {
+        const reveal = document.getElementById("reveal-message");
+        const qlLine = document.getElementById("ql-line");
+        qlLine.classList.add("typing-cursor");
+        setTimeout(() => {
+          typeWriter(reveal, 22);
+          setTimeout(() => qlLine.classList.remove("typing-cursor"), 1200);
+        }, 500);
+      }
+    }
+
+  </script>
+</body>
+</html>
